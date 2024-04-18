@@ -5,3 +5,6 @@ A chess ui where one can easily connect a neural engine to play against
 This repo uses python chess for creating chess engines
 chessboardjs
 chessjs
+
+Add tutorial on how to run app by doing flask run.py 
+Add tutorial on how to run app using docker
