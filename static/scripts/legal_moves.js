@@ -65,9 +65,32 @@ function updateStatus () {
     }
   }
 
-  $status.html(status)
-  $fen.html(game.fen())
-  $pgn.html(game.pgn())
+  //$status.html(status)
+  //$fen.html(game.fen())
+  //postPosition(game.fen())
+  //$pgn.html(game.pgn())
+}
+
+// Make a post request to the backend
+function postPosition(position){
+  
+  post_data = {
+    fen: position
+  }
+
+  $.ajax({
+      url: '/post_position',
+      type: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(post_data),
+      success: function(data) {
+        // Handle success response
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error('Error:', errorThrown);
+        // Handle error
+      }
+    });
 }
 
 var config = {
