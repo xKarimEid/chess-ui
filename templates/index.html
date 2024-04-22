@@ -15,11 +15,16 @@
         integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
         crossorigin="anonymous"></script>
 
+        
     </head>
 
     <body>
-        <div id="board1" style="width: 400px"></div>
+        <div id="chess-board-container" style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+            <div id="board" style="width: 750px"></div>
+        </div>
+        
         <script src="{{url_for('static', filename='scripts/chess.js')}}"></script>
+        
     </body>
 
 </html>
