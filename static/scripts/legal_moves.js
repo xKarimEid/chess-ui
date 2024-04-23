@@ -1,10 +1,10 @@
 //var board = Chessboard('board', 'start')
 
-var board = null
+//var board = null
 var game = new Chess()
-var $status = $('#status')
-var $fen = $('#fen')
-var $pgn = $('#pgn')
+//var $status = $('#status')
+//var $fen = $('#fen')
+//var $pgn = $('#pgn')
 
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
@@ -28,69 +28,39 @@ function onDrop (source, target) {
   // illegal move
   if (move === null) return 'snapback'
 
-  updateStatus()
+  
+
 }
 
 // update the board position after the piece snap
 // for castling, en passant, pawn promotion
 function onSnapEnd () {
-  board.position(game.fen())
+  //board.position(game.fen())
+  if (!game.game_over()){
+    updateStatus()
+  }
+  
 }
 
 function updateStatus () {
-  var status = ''
+  var header = {
+    'Content-Type': 'application/json'
+  };
 
-  var moveColor = 'White'
-  if (game.turn() === 'b') {
-    moveColor = 'Black'
-  }
-
-  // checkmate?
-  if (game.in_checkmate()) {
-    status = 'Game over, ' + moveColor + ' is in checkmate.'
-  }
-
-  // draw?
-  else if (game.in_draw()) {
-    status = 'Game over, drawn position'
-  }
-
-  // game still on
-  else {
-    status = moveColor + ' to move'
-
-    // check?
-    if (game.in_check()) {
-      status += ', ' + moveColor + ' is in check'
-    }
-  }
-
-  //$status.html(status)
-  //$fen.html(game.fen())
-  //postPosition(game.fen())
-  //$pgn.html(game.pgn())
-}
-
-// Make a post request to the backend
-function postPosition(position){
+  var postData = { fen: game.fen()};
   
-  post_data = {
-    fen: position
-  }
-
   $.ajax({
-      url: '/post_position',
-      type: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify(post_data),
-      success: function(data) {
-        // Handle success response
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.error('Error:', errorThrown);
-        // Handle error
-      }
-    });
+    type: 'POST',
+    url: "http://127.0.0.1:8080/make_random_move",
+    headers: header,
+    data: JSON.stringify(postData),
+    
+    success: function(data){
+      console.log("data recieved back from engine: ", data);
+      board.position(data);
+      game.load(data, {skipValidation: true});
+    }
+  });
 }
 
 var config = {
@@ -102,5 +72,3 @@ var config = {
 }
 
 board = Chessboard('board', config)
-
-updateStatus()
