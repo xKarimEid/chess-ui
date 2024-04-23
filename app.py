@@ -1,56 +1,55 @@
 """
-Backend for setting up the chess UI and keeping track
-of the chess position (fen)
-
-To do:
-Add chess engine abililty to play random moves when the user makes his/her move
-If chess engine finds a response from /trained_model then get moves from there
-else get moves from /random_move
-
+This is the backend for playing against a chess engine. Whenever the
+user makes a move on the frontend, the backend makes a request to a 
+chess engine available on "http://127.0.0.1:8080/make_random_move".
+The response contains the new position after the chess engine makes 
+its move. The new position is then returned to the frontend where 
+it is displayed.
 """
 
-from flask import Flask, render_template, send_from_directory, request, jsonify
+
+from flask import Flask, render_template, send_from_directory, request
+import requests
+
 
 app = Flask(__name__)
 
 @app.route('/')
 def display_board():
     """
-    Main entry function
+    Main entry function. Renders the index.html file
+    which displays the chess board to the user.
     """
 
     return render_template('index.html')
 
 @app.route('/img/chesspieces/wikipedia/<filename>')
 def get_piece_image(filename):
-    """Redirect to correct folder containing piece images"""
+    """Redirects frontend to correct folder containing piece images"""
 
     return send_from_directory('static/img/chesspieces/wikipedia/', filename)
 
-@app.route('/post_position', methods = ['POST'])
-def submit_position():
+@app.route('/make_move', methods = ['POST'])
+def get_position():
     """
-    API endpoint for receiving the fen position
-    This endpoint gets called by the front-end whenever the user
-    makes a move
+    This function is called from the front end after the user
+    makes a move. The function extracts the current position
+    from the request and sends it to the chess engine. The chess engine
+    evaluates the position and gives back the new position after it makes
+    its move. 
     """
 
-    data = request.json['fen']
+    # Extract the current position
+    fen = request.json['fen']
 
-    position = get_move()
-    fen = position['fen']
+    # url for engine
+    url = "http://127.0.0.1:8080/make_move"
+    # Send a request to get the new position
+    response = requests.post(url=url, json= {'fen': fen})
+    # Extract the new position
+    new_fen = response.json()['fen']
 
-    #print("new_position: ", new_position.data)
+    return new_fen
 
-    return jsonify({'msg': fen}), 200
-
-@app.route('/get_move')
-def get_move():
-    """
-    For a given fen position returns the engine's move
-    If there is no engine, returns a random move
-    """
-    print("in get move")
-    #fen = request.json['fen']
-    outcome = "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
-    return {'fen': outcome}
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=5000)

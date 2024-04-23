@@ -1,10 +1,13 @@
-//var board = Chessboard('board', 'start')
+/*
+This is the front end which displays a chess board
+for the user and lets the user makes legal moves. Whenever the
+user makes a legal move a request is made to the backend to make the
+chess engine play its move.
+*/
 
-//var board = null
+// The Chess.js library is used to detect legal moves
 var game = new Chess()
-//var $status = $('#status')
-//var $fen = $('#fen')
-//var $pgn = $('#pgn')
+
 
 function onDragStart (source, piece, position, orientation) {
   // do not pick up pieces if the game is over
@@ -22,26 +25,23 @@ function onDrop (source, target) {
   var move = game.move({
     from: source,
     to: target,
-    promotion: 'q' // NOTE: always promote to a queen for example simplicity
+    promotion: 'q' // NOTE: always promote to a queen for simplicity
   })
 
   // illegal move
   if (move === null) return 'snapback'
 
-  
-
 }
 
 // update the board position after the piece snap
-// for castling, en passant, pawn promotion
 function onSnapEnd () {
-  //board.position(game.fen())
   if (!game.game_over()){
     updateStatus()
   }
-  
 }
 
+// Make a request to the backend to get make the chess engine
+// play its move and get back the new position after the move is made
 function updateStatus () {
   var header = {
     'Content-Type': 'application/json'
@@ -51,7 +51,7 @@ function updateStatus () {
   
   $.ajax({
     type: 'POST',
-    url: "http://127.0.0.1:8080/make_random_move",
+    url: "http://127.0.0.1:5000/make_move",
     headers: header,
     data: JSON.stringify(postData),
     
@@ -71,4 +71,5 @@ var config = {
   onSnapEnd: onSnapEnd
 }
 
+// initialize the chessboard
 board = Chessboard('board', config)
